@@ -1,0 +1,111 @@
+{
+    "$id": "https://example.com/blog-post.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "This schema corresponds to a yaml file containing the metadata of a SQL script.\nIf you need to check your yaml, first check that it's a valid yaml, then turn it into a json with an online converter, then check that json against this schema.",
+    "type": "object",
+    "required": ["key", "name", "description", "parameters", "tables_affected", "replacements"],
+    "properties": {
+        "key": {
+            "description": "The key of the script. This is used as filename when looking for the .sql file of the script. Try to keep it simple and without whitespaces.",
+            "type": "string"
+        },
+        "name": {
+            "description": "The pretty name of the script. Used by tools with UI to show a descriptive and human-readable name for the script.",
+            "type": "string"
+        },
+        "description": {
+            "description": "What the script is for.",
+            "type": "string"
+        },
+        "parameters": {
+            "type": "array",
+            "description": "List of parameters the script has.",
+            "items": {
+                "type": "object",
+                "required": ["key", "type", "default_value", "name"],
+                "properties": {
+                    "key": {
+                        "description": "Key of the paramater. Any instance of this in the script or in any of the replacements will be replaced by the value assigned to this parameter. So make sure it's unique enough.",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of the parameter. Currently supported types are 'Bool', 'Integer' and 'Float'.",
+                        "type": "string",
+                        "enum": ["Bool", "Integer", "Float"]
+                    },
+                    "default_value": {
+                        "description": "If no value is passed for this parameter, this value will be applied instead.",
+                    },
+                    "name": {
+                        "description": "The pretty name of the parameter. Used by tools with UI to show a descriptive and human-readable name for the parameter.",
+                        "type": "string"
+                    },
+                },
+
+                "if": {
+                    "properties": {
+                        "type": {
+                            "const": "Bool"
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "default_value": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "else": {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Integer"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "default_value": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "else": {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "Float"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "default_value": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                }
+            }
+        },
+        "tables_affected": {
+            "description": "List of table names without the '_tables' part (for example, _kv_rules) that this script edits. These tables will be the ones imported into the resulting Pack.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^.+(?<!_tables)$"
+            },
+        },
+        "replacements": {
+            "type": "object",
+            "description": "Pairs of 'key to replace' and 'value to replace it with'. Any instance of any of the keys in either the script or any of the values in here will be replaced with its corresponding value. All keys must be uppercase, separated with _. Admits up to 30 levels of recursion.",
+            "unevaluatedProperties": false,
+            "patternProperties": {
+                "^[A-Z_]+$": { "type": "string" },
+            },
+        }
+    }
+}
+
