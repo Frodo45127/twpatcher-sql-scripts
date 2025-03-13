@@ -1,55 +1,54 @@
-metadata:
-  key: unit_multiplier
-  name: Unit Multiplier (SQL)
-  description: |-
-    Unit multiplier. Applies a multiplier of $0 to the size of all units in the load order.
+key: unit_multiplier
+name: Unit Multiplier (SQL)
+description: |-
+  Unit multiplier. Applies a multiplier of $0 to the size of all units in the load order.
 
-    Single entity units get their health increased to keep the balance.
+  Single entity units get their health increased to keep the balance.
 
-  parameters:
-  - key: $0
-    type: Float
-    default_value: 1.0
-    name: Multiplier Value
+parameters:
+- key: $0
+  type: Float
+  default_value: 1.0
+  name: Multiplier Value
 
-  tables_affected:
-  - _kv_rules
-  - _kv_unit_ability_scaling_rules
-  - land_units
-  - main_units
-  - unit_size_global_scalings
-  - unit_stat_to_size_scaling_values
+tables_affected:
+- _kv_rules
+- _kv_unit_ability_scaling_rules
+- land_units
+- main_units
+- unit_size_global_scalings
+- unit_stat_to_size_scaling_values
 
-  replacements:
-    VERSION__KV_RULES: v0
-    VERSION__KV_UNIT_ABILITY_SCALING_RULES: v0
-    VERSION_LAND_UNITS: v53
-    VERSION_MAIN_UNITS: v7
-    VERSION_UNIT_SIZE_GLOBAL_SCALINGS: v0
-    VERSION_UNIT_STAT_TO_SIZE_SCALING_VALUES: v1
-    WITH_SINGLE_ENTITIES: |-
-        single_entities AS (
-          SELECT unit, land_unit FROM main_units_tables_VERSION_MAIN_UNITS WHERE
-            caste = 'lord' OR
-            caste = 'hero' OR
-            use_hitpoints_in_campaign OR
-            num_men = 1
-        )
+replacements:
+  VERSION__KV_RULES: v0
+  VERSION__KV_UNIT_ABILITY_SCALING_RULES: v0
+  VERSION_LAND_UNITS: v53
+  VERSION_MAIN_UNITS: v7
+  VERSION_UNIT_SIZE_GLOBAL_SCALINGS: v0
+  VERSION_UNIT_STAT_TO_SIZE_SCALING_VALUES: v1
+  WITH_SINGLE_ENTITIES: |-
+      single_entities AS (
+        SELECT unit, land_unit FROM main_units_tables_VERSION_MAIN_UNITS WHERE
+          caste = 'lord' OR
+          caste = 'hero' OR
+          use_hitpoints_in_campaign OR
+          num_men = 1
+      )
 
-    WITH_ENGINES: |-
-        engines AS (
-          SELECT key, num_engines FROM land_units_tables_VERSION_LAND_UNITS
-          WHERE num_engines > 0
-        )
+  WITH_ENGINES: |-
+      engines AS (
+        SELECT key, num_engines FROM land_units_tables_VERSION_LAND_UNITS
+        WHERE num_engines > 0
+      )
 
-    WITH_MOUNTS: |-
-        WITH_ENGINES, mounts AS (
-        SELECT key, num_mounts FROM land_units_tables_VERSION_LAND_UNITS
-        WHERE
-          num_mounts > 0
-          AND key NOT IN(SELECT key FROM engines)
-        )
+  WITH_MOUNTS: |-
+      WITH_ENGINES, mounts AS (
+      SELECT key, num_mounts FROM land_units_tables_VERSION_LAND_UNITS
+      WHERE
+        num_mounts > 0
+        AND key NOT IN(SELECT key FROM engines)
+      )
 
-    SELECT_NUM_MOUNTS: SELECT num_mounts FROM mounts WHERE mounts.key = main_units.land_unit LIMIT 1
+  SELECT_NUM_MOUNTS: SELECT num_mounts FROM mounts WHERE mounts.key = main_units.land_unit LIMIT 1
 
-    SELECT_NUM_ENGINES: SELECT num_engines FROM engines WHERE engines.key = main_units.land_unit LIMIT 1
+  SELECT_NUM_ENGINES: SELECT num_engines FROM engines WHERE engines.key = main_units.land_unit LIMIT 1
