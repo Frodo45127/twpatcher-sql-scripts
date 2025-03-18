@@ -4,6 +4,7 @@
     "description": "This schema corresponds to a yaml file containing the metadata of a SQL script.\nIf you need to check your yaml, first check that it's a valid yaml, then turn it into a json with an online converter, then check that json against this schema.",
     "type": "object",
     "required": ["key", "name", "description", "tables_affected"],
+    "unevaluatedProperties": false,
     "properties": {
         "key": {
             "description": "The key of the script. This is used as filename when looking for the .sql file of the script. Try to keep it simple and without whitespaces.",
@@ -16,6 +17,10 @@
         "description": {
             "description": "What the script is for.",
             "type": "string"
+        },
+        "automatic": {
+            "description": "For UIs. If true, the script should be always enabled and not be shown in the UI.",
+            "type": "boolean"
         },
         "parameters": {
             "type": ["array", "null"],

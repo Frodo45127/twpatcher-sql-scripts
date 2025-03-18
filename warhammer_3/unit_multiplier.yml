@@ -5,6 +5,7 @@ description: |-
 
   Single entity units get their health increased to keep the balance.
 
+automatic: false
 parameters:
 - key: $0
   type: Float
