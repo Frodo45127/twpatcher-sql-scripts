@@ -19,6 +19,7 @@ tables_affected:
 - unit_size_global_scalings
 - unit_stat_to_size_scaling_values
 
+tables_created:
 replacements:
   VERSION__KV_RULES: v0
   VERSION__KV_UNIT_ABILITY_SCALING_RULES: v0

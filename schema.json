@@ -3,7 +3,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "description": "This schema corresponds to a yaml file containing the metadata of a SQL script.\nIf you need to check your yaml, first check that it's a valid yaml, then turn it into a json with an online converter, then check that json against this schema.",
     "type": "object",
-    "required": ["key", "name", "description", "parameters", "tables_affected", "replacements"],
+    "required": ["key", "name", "description", "tables_affected"],
     "properties": {
         "key": {
             "description": "The key of the script. This is used as filename when looking for the .sql file of the script. Try to keep it simple and without whitespaces.",
@@ -18,7 +18,7 @@
             "type": "string"
         },
         "parameters": {
-            "type": "array",
+            "type": ["array", "null"],
             "description": "List of parameters the script has.",
             "items": {
                 "type": "object",
@@ -98,12 +98,23 @@
                 "pattern": "^.+(?<!_tables)$"
             },
         },
+        "tables_created": {
+            "description": "List of table names without the '_tables' part (for example, _kv_rules) that this script adds new lines to through INSERT INTO statements.",
+            "type": ["object", "null"],
+            "items": {
+                "type": "string",
+                "pattern": "^.+(?<!_tables)$"
+            },
+        },
         "replacements": {
             "type": "object",
-            "description": "Pairs of 'key to replace' and 'value to replace it with'. Any instance of any of the keys in either the script or any of the values in here will be replaced with its corresponding value. All keys must be uppercase, separated with _. Admits up to 30 levels of recursion.",
+            "description": "Pairs of 'key to replace' and 'value to replace it with'. Any instance of any of the keys in either the script or any of the values in here will be replaced with its corresponding value. All keys must be uppercase, separated with _. Admits up to 30 levels of recursion.\nNOTE: PACK_FILE_NAME is a reserved replacement. Do not name any replacement key that.",
             "unevaluatedProperties": false,
             "patternProperties": {
                 "^[A-Z_]+$": { "type": "string" },
+            },
+            "not": {
+                "required":["PACK_FILE_NAME"]
             },
         }
     }
