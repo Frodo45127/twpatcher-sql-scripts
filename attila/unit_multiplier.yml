@@ -1,0 +1,37 @@
+key: unit_multiplier
+name: Unit Multiplier (SQL)
+description: |-
+  Unit multiplier. Applies a multiplier of $0 to the size of all units in the load order.
+
+automatic: false
+parameters:
+- key: $0
+  type: Float
+  default_value: 1.0
+  name: Multiplier Value
+
+tables_affected:
+- land_units
+- main_units
+
+tables_created:
+replacements:
+  VERSION_LAND_UNITS: v30
+  VERSION_MAIN_UNITS: v17
+  WITH_CHARIOTS: |-
+      chariots AS (
+        SELECT key, num_chariots FROM land_units_tables_VERSION_LAND_UNITS
+        WHERE num_chariots > 0
+      )
+
+  WITH_MOUNTS: |-
+      WITH_CHARIOTS, mounts AS (
+      SELECT key, num_mounts FROM land_units_tables_VERSION_LAND_UNITS
+      WHERE
+        num_mounts > 0
+        AND key NOT IN(SELECT key FROM chariots)
+      )
+
+  SELECT_NUM_MOUNTS: SELECT num_mounts FROM mounts WHERE mounts.key = main_units.land_unit LIMIT 1
+
+  SELECT_NUM_CHARIOTS: SELECT num_chariots FROM chariots WHERE chariots.key = main_units.land_unit LIMIT 1
